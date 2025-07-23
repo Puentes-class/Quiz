@@ -1,1 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Interactivo de Matemáticas SIMCE 4° Básico</title>
+    <style>
+        /* ... (Tu CSS existente aquí) ... */
 
+        /* Algunos estilos adicionales para las imágenes en el quiz, si lo deseas */
+        .quiz-image {
+            max-width: 100%; /* Para que la imagen no se salga del contenedor */
+            height: auto;    /* Para mantener la proporción de la imagen */
+            display: block;  /* Para que la imagen ocupe su propia línea */
+            margin: 10px auto; /* Para centrarla y darle un poco de espacio */
+            border: 1px solid #ddd; /* Opcional: un borde suave */
+            border-radius: 4px; /* Opcional: bordes redondeados */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz Interactivo de Matemáticas SIMCE 4° Básico</h1>
+
+        <div class="quiz-intro">
+            <p>¡Pon a prueba tus conocimientos con estas preguntas del SIMCE de Matemáticas!</p>
+        </div>
+
+        <div class="quiz-container-wrapper">
+            <div class="quiz-question" data-correct-answer="Cilindro">
+                <p class="question-text">1. ¿Cuál de los siguientes objetos puede ser representado con un cilindro?</p>
+                <div class="quiz-options">
+                    <ul>
+                        <li>
+                            <input type="radio" id="q1_optA" name="q1" value="Globo terráqueo">
+                            <label for="q1_optA">
+                                <img src="img/q1_opcionA_globo.png" alt="Globo terráqueo" class="quiz-image">
+                                A.
+                            </label>
+                        </li>
+                        <li>
+                            <input type="radio" id="q1_optB" name="q1" value="Caja rectangular">
+                            <label for="q1_optB">
+                                <img src="img/q1_opcionB_caja.png" alt="Caja rectangular" class="quiz-image">
+                                B.
+                            </label>
+                        </li>
+                        <li>
+                            <input type="radio" id="q1_optC" name="q1" value="Cilindro">
+                            <label for="q1_optC">
+                                <img src="img/q1_opcionC_cilindro.png" alt="Objeto con forma de cilindro" class="quiz-image">
+                                C.
+                            </label>
+                        </li>
+                        <li>
+                            <input type="radio" id="q1_optD" name="q1" value="Cono">
+                            <label for="q1_optD">
+                                <img src="img/q1_opcionD_cono.png" alt="Objeto con forma de cono" class="quiz-image">
+                                D.
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+                <button class="check-button" onclick="checkAnswer(this)">Verificar</button>
+                <div class="quiz-feedback"></div>
+                <p class="quiz-hint">Un cilindro es un cuerpo redondo con dos bases circulares iguales y paralelas.</p>
+            </div>
+
+            </div> </div> <script>
+        // ... (Tu JavaScript existente aquí, necesitará algunas pequeñas modificaciones
+        // para manejar los radios de forma más robusta) ...
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const allQuizOptions = document.querySelectorAll('.quiz-options ul');
+
+            allQuizOptions.forEach(ul => {
+                const radioButtons = ul.querySelectorAll('input[type="radio"]');
+                const labels = ul.querySelectorAll('label');
+
+                labels.forEach(label => {
+                    label.addEventListener('click', function() {
+                        // Encuentra el radio button asociado a esta etiqueta
+                        const radioButton = document.getElementById(this.htmlFor);
+                        if (radioButton) {
+                            radioButton.checked = true; // Marca el radio button
+
+                            // Quita la clase 'selected' de todas las opciones de esta pregunta
+                            labels.forEach(l => l.parentElement.classList.remove('selected'));
+                            // Añade la clase 'selected' al elemento <li> que contiene la opción seleccionada
+                            this.parentElement.classList.add('selected');
+                        }
+                    });
+                });
+
+                // Para manejar el caso donde se hace clic directamente en el radio (menos común con labels grandes)
+                radioButtons.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        labels.forEach(l => l.parentElement.classList.remove('selected'));
+                        if (this.checked) {
+                            this.parentElement.classList.add('selected');
+                        }
+                    });
+                });
+            });
+        });
+
+
+        function checkAnswer(button) {
+            const questionDiv = button.closest('.quiz-question');
+            // Busca el radio button seleccionado dentro de esta pregunta
+            const selectedRadioButton = questionDiv.querySelector('.quiz-options input[type="radio"]:checked');
+            const feedbackDiv = questionDiv.querySelector('.quiz-feedback');
+            const correctAnswerText = questionDiv.dataset.correctAnswer;
+            // Selecciona todos los elementos <li> de opciones para esta pregunta
+            const allOptionLis = questionDiv.querySelectorAll('.quiz-options li');
+
+            // Limpiar clases de intento anterior
+            allOptionLis.forEach(li => {
+                li.classList.remove('correct', 'incorrect', 'selected'); // Limpia también 'selected'
+            });
+            feedbackDiv.classList.remove('correct', 'incorrect');
+            feedbackDiv.style.display = 'none'; // Ocultar feedback anterior
+
+            if (!selectedRadioButton) {
+                feedbackDiv.textContent = 'Por favor, selecciona una opción.';
+                feedbackDiv.className = 'quiz-feedback incorrect';
+                feedbackDiv.style.display = 'block';
+                return;
+            }
+
+            const userAnswerText = selectedRadioButton.value; // Obtener el valor del radio seleccionado
+
+            if (userAnswerText === correctAnswerText) {
+                selectedRadioButton.closest('li').classList.add('correct'); // Añade 'correct' al <li> padre
+                feedbackDiv.textContent = '¡Correcto! ' + getRationale(questionDiv.querySelector('.question-text').textContent.trim(), 'correct');
+                feedbackDiv.className = 'quiz-feedback correct';
+            } else {
+                selectedRadioButton.closest('li').classList.add('incorrect'); // Añade 'incorrect' al <li> padre
+                // Marcar la respuesta correcta también (si la hay)
+                questionDiv.querySelectorAll('.quiz-options input[type="radio"]').forEach(radio => {
+                    if (radio.value === correctAnswerText) {
+                        radio.closest('li').classList.add('correct');
+                    }
+                });
+                feedbackDiv.textContent = 'Incorrecto. ' + getRationale(questionDiv.querySelector('.question-text').textContent.trim(), 'incorrect', userAnswerText);
+                feedbackDiv.className = 'quiz-feedback incorrect';
+            }
+            feedbackDiv.style.display = 'block';
+        }
+
+        // Función para obtener la justificación (rationale) - La rellenaríamos con las explicaciones del SIMCE
+        function getRationale(questionText, type, userAnswer = null) {
+            let rationale = '';
+
+            switch(questionText) {
+                case "1. ¿Cuál de los siguientes objetos puede ser representado con un cilindro?":
+                    rationale = "Un cilindro es un cuerpo geométrico con dos bases circulares y una superficie lateral curva. La opción C es la que mejor representa esta forma.";
+                    break;
+                // ... (Añadir justificaciones para las demás preguntas aquí) ...
+                default:
+                    rationale = "Explicación no disponible.";
+            }
+            return rationale;
+        }
+    </script>
+</body>
+</html>
